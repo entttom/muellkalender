@@ -1,0 +1,39 @@
+{
+  "name": "muellkalender",
+  "version": "1.0.0",
+  "description": "Eine App zur Erstellung von Müllabfuhr-Kalendern unter Berücksichtigung von Feiertagen",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/entttom/muellkalender.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/entttom/muellkalender/issues"
+  },
+  "homepage": "https://github.com/entttom/muellkalender#readme",
+  "dependencies": {
+    "@internationalized/date": "^3.5.2",
+    "axios": "^1.6.8",
+    "date-fns": "^3.6.0",
+    "date-fns-tz": "^3.2.0",
+    "ical-generator": "^8.1.1",
+    "ics-js": "^0.10.2",
+    "next": "^14.1.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3"
+  }
+}
