@@ -2,6 +2,8 @@
 
 ## 🔗 [muellkalender.netlify.app](https://muellkalender.netlify.app)
 
+![Müllkalender App Screenshot](./muellkalender_netlify_app.jpg)
+
 Eine liebevoll gestaltete Web-Anwendung zur Erstellung von Müllabfuhr-Kalendern im ICS-Format, die automatisch Feiertage berücksichtigt.
 
 Primär entwickelt für die **Wiener Müllabfuhr (MA48)**, aber universell für jede Müllabfuhr einsetzbar, die feste Abholtermine hat und diese bei Feiertagen verschiebt.
