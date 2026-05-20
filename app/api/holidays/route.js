@@ -1,12 +1,32 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
-import { parseISO, format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { addDays, format } from 'date-fns';
+
+const getEasterSunday = (year) => {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+
+  return new Date(year, month - 1, day);
+};
+
+const formatHolidayDate = (date) => format(date, 'yyyy-MM-dd');
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const country = searchParams.get('country');
-  const year = searchParams.get('year') || new Date().getFullYear();
+  const year = Number(searchParams.get('year') || new Date().getFullYear());
   
   console.log('Holidays API aufgerufen mit:', { country, year });
   
@@ -45,6 +65,7 @@ export async function GET(request) {
     console.error('Fehler beim Abrufen der Feiertage:', error.message);
     
     // Beispiel-Feiertage für Tests zurückgeben, wenn die API nicht verfügbar ist
+    const easterSunday = getEasterSunday(year);
     const fixedHolidays = [
       { date: `${year}-01-01`, name: 'Neujahr', countryCode: 'AT' },
       { date: `${year}-01-06`, name: 'Heilige Drei Könige', countryCode: 'AT' },
@@ -57,15 +78,14 @@ export async function GET(request) {
       { date: `${year}-12-26`, name: 'Stefanitag', countryCode: 'AT' }
     ];
     
-    // Diese sind nur Approximationen für ein normales Jahr
     const variableHolidays = [
-      { date: `${year}-04-10`, name: 'Karfreitag', countryCode: 'AT' },
-      { date: `${year}-04-13`, name: 'Ostermontag', countryCode: 'AT' },
-      { date: `${year}-05-21`, name: 'Christi Himmelfahrt', countryCode: 'AT' },
-      { date: `${year}-06-01`, name: 'Pfingstmontag', countryCode: 'AT' },
-      { date: `${year}-06-11`, name: 'Fronleichnam', countryCode: 'AT' }
+      { date: formatHolidayDate(addDays(easterSunday, -2)), name: 'Karfreitag', countryCode: 'AT' },
+      { date: formatHolidayDate(addDays(easterSunday, 1)), name: 'Ostermontag', countryCode: 'AT' },
+      { date: formatHolidayDate(addDays(easterSunday, 39)), name: 'Christi Himmelfahrt', countryCode: 'AT' },
+      { date: formatHolidayDate(addDays(easterSunday, 50)), name: 'Pfingstmontag', countryCode: 'AT' },
+      { date: formatHolidayDate(addDays(easterSunday, 60)), name: 'Fronleichnam', countryCode: 'AT' }
     ];
     
     return NextResponse.json([...fixedHolidays, ...variableHolidays]);
   }
-} 
+}

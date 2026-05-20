@@ -15,6 +15,7 @@ export async function POST(request) {
       specificTime = '08:00',
       startTime = '08:00',
       endTime = '09:00',
+      selectedYear,
       isBioWaste = false,
       winterStartMonth = 10,
       winterStartDay = 1,
@@ -28,6 +29,27 @@ export async function POST(request) {
 
     // Konvertiere alle Feiertage zu Date-Objekten für einfacheren Vergleich
     const holidayDates = holidays.map(holiday => parseISO(holiday.date));
+    const daysOfWeek = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+    const targetDayIndex = daysOfWeek.indexOf(pickupDay);
+
+    if (targetDayIndex === -1) {
+      return NextResponse.json({ error: 'Ungültiger Wochentag' }, { status: 400 });
+    }
+
+    const calendarYear = Number(selectedYear) || parseISO(endDate).getFullYear();
+    const findHolidayOnDate = (date) => {
+      const dateKey = format(date, 'yyyy-MM-dd');
+      return holidayDates.some(holiday => format(holiday, 'yyyy-MM-dd') === dateKey);
+    };
+    const movePastBlockedPickupDay = (date) => {
+      let nextDate = new Date(date);
+
+      while (isSunday(nextDate) || findHolidayOnDate(nextDate)) {
+        nextDate = addDays(nextDate, 1);
+      }
+
+      return nextDate;
+    };
     
     // Erstelle Winter-Zeitraum Datumobjekte für Biomülltonne
     let winterStartAnfangJahr = null;
@@ -38,24 +60,22 @@ export async function POST(request) {
     let firstPickupInWinterEndeJahr = null;
     
     if (isBioWaste) {
-      const selectedYear = new Date(parseISO(startDate)).getFullYear();
-      
       // Für den Winter am Jahresanfang (z.B. Winter 2023/2024 für das Jahr 2024)
-      winterStartAnfangJahr = new Date(selectedYear-1, winterStartMonth - 1, winterStartDay);
-      winterEndAnfangJahr = new Date(selectedYear, winterEndMonth - 1, winterEndDay);
+      winterStartAnfangJahr = new Date(calendarYear-1, winterStartMonth - 1, winterStartDay);
+      winterEndAnfangJahr = new Date(calendarYear, winterEndMonth - 1, winterEndDay);
       
       // Für den Winter am Jahresende (z.B. Winter 2024/2025 für das Jahr 2024)
-      winterStartEndeJahr = new Date(selectedYear, winterStartMonth - 1, winterStartDay);
-      winterEndEndeJahr = new Date(selectedYear+1, winterEndMonth - 1, winterEndDay);
+      winterStartEndeJahr = new Date(calendarYear, winterStartMonth - 1, winterStartDay);
+      winterEndEndeJahr = new Date(calendarYear+1, winterEndMonth - 1, winterEndDay);
       
       // Bestimme den ersten Abholtag für beide Winterzeiträume
       firstPickupInWinterAnfangJahr = new Date(winterStartAnfangJahr);
-      while (firstPickupInWinterAnfangJahr.getDay() !== daysOfWeek.indexOf(pickupDay)) {
+      while (firstPickupInWinterAnfangJahr.getDay() !== targetDayIndex) {
         firstPickupInWinterAnfangJahr.setDate(firstPickupInWinterAnfangJahr.getDate() + 1);
       }
       
       firstPickupInWinterEndeJahr = new Date(winterStartEndeJahr);
-      while (firstPickupInWinterEndeJahr.getDay() !== daysOfWeek.indexOf(pickupDay)) {
+      while (firstPickupInWinterEndeJahr.getDay() !== targetDayIndex) {
         firstPickupInWinterEndeJahr.setDate(firstPickupInWinterEndeJahr.getDate() + 1);
       }
     }
@@ -66,14 +86,6 @@ export async function POST(request) {
     // Startdatum für die Schleife
     let currentDate = parseISO(startDate);
     const endDateTime = parseISO(endDate);
-
-    // Finde den ersten Tag des gewünschten Wochentags
-    const daysOfWeek = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
-    const targetDayIndex = daysOfWeek.indexOf(pickupDay);
-    
-    if (targetDayIndex === -1) {
-      return NextResponse.json({ error: 'Ungültiger Wochentag' }, { status: 400 });
-    }
 
     // Finde das erste Vorkommen des gewünschten Wochentags
     while (currentDate.getDay() !== targetDayIndex) {
@@ -222,12 +234,18 @@ export async function POST(request) {
             }
           }
         }
+
+        eventDate = movePastBlockedPickupDay(eventDate);
         
         // Erstelle den Termin mit den entsprechenden Zeitangaben
+        const uidName = eventName
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/gi, '-')
+          .replace(/^-|-$/g, '') || 'termin';
         let eventOptions = {
           summary: eventName,
           description: `Müllabfuhr-Termin für ${eventName}`,
-          uid: `muellkalender-${format(eventDate, 'yyyyMMdd')}`
+          uid: `muellkalender-${uidName}-${pickupDay}-${format(currentDate, 'yyyyMMdd')}-${format(eventDate, 'yyyyMMdd')}`
         };
         
         // Setze die Zeit je nach ausgewähltem Typ
@@ -313,4 +331,4 @@ export async function POST(request) {
     console.error('Fehler bei der Generierung der ICS-Datei:', error);
     return NextResponse.json({ error: 'Fehler bei der Generierung der ICS-Datei' }, { status: 500 });
   }
-} 
+}

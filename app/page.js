@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { format, addYears, parseISO, addDays, addWeeks, isSunday } from 'date-fns';
+import { format, parseISO, addDays, addWeeks, isSunday } from 'date-fns';
 import { de } from 'date-fns/locale';
 import axios from 'axios';
 
@@ -45,6 +45,9 @@ export default function Home() {
       const dayOfWeek = today.getDay(); // 0 = Sonntag, 1 = Montag, ...
       const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Wenn Sonntag, gehe 6 Tage zurück, sonst finde den letzten Montag
       currentWeekStart.setDate(today.getDate() + diff);
+      if (currentWeekStart < new Date(selectedYear, 0, 1)) {
+        return startDate;
+      }
       return format(currentWeekStart, 'yyyy-MM-dd');
     }
     return startDate;
@@ -118,8 +121,23 @@ export default function Home() {
     }
   };
 
-  const generatePreview = () => {
-    if (!pickupDay || !eventName || holidays.length === 0) {
+  const findHolidayOnDate = (date, holidayList) => {
+    const dateKey = format(date, 'yyyy-MM-dd');
+    return holidayList.find(holiday => format(parseISO(holiday.date), 'yyyy-MM-dd') === dateKey);
+  };
+
+  const movePastBlockedPickupDay = (date, holidayList) => {
+    let nextDate = new Date(date);
+
+    while (isSunday(nextDate) || findHolidayOnDate(nextDate, holidayList)) {
+      nextDate = addDays(nextDate, 1);
+    }
+
+    return nextDate;
+  };
+
+  const generatePreview = (holidaysForPreview = holidays) => {
+    if (!pickupDay || !eventName || holidaysForPreview.length === 0) {
       setError('Bitte füllen Sie alle erforderlichen Felder aus.');
       return false;
     }
@@ -141,9 +159,6 @@ export default function Home() {
     }
 
     try {
-      // Konvertiere alle Feiertage zu Date-Objekten für einfacheren Vergleich
-      const holidayDates = holidays.map(holiday => parseISO(holiday.date));
-      
       // Definiere Wochentage
       const daysOfWeek = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
       const weekdayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
@@ -234,7 +249,7 @@ export default function Home() {
           let reason = '';
           
           // Prüfe, ob der aktuelle Tag ein Feiertag ist
-          const holiday = holidays.find(h => 
+          const holiday = holidaysForPreview.find(h =>
             format(parseISO(h.date), 'yyyy-MM-dd') === format(eventDate, 'yyyy-MM-dd'));
           
           let isHoliday = !!holiday;
@@ -276,7 +291,7 @@ export default function Home() {
                 eventDate = addDays(eventDate, 1);
                 
                 // Prüfe, ob der verschobene Tag auch ein Feiertag ist
-                const nextDayHoliday = holidays.find(h => 
+                const nextDayHoliday = holidaysForPreview.find(h =>
                   format(parseISO(h.date), 'yyyy-MM-dd') === format(eventDate, 'yyyy-MM-dd'));
                 
                 if (nextDayHoliday) {
@@ -317,7 +332,7 @@ export default function Home() {
               if (checkWeekday === 0 || checkWeekday === 6) continue; // Sonntag oder Samstag
               
               // Prüfe, ob dieser Tag ein Feiertag ist
-              const dayHoliday = holidays.find(h => 
+              const dayHoliday = holidaysForPreview.find(h =>
                 format(parseISO(h.date), 'yyyy-MM-dd') === format(checkDate, 'yyyy-MM-dd'));
               
               if (dayHoliday) {
@@ -343,7 +358,7 @@ export default function Home() {
               eventDate = addDays(eventDate, 1);
               
               // Prüfe, ob der verschobene Tag ein Feiertag ist
-              const shiftedDayHoliday = holidays.find(h => 
+              const shiftedDayHoliday = holidaysForPreview.find(h =>
                 format(parseISO(h.date), 'yyyy-MM-dd') === format(eventDate, 'yyyy-MM-dd'));
               
               if (shiftedDayHoliday) {
@@ -359,6 +374,15 @@ export default function Home() {
             }
           }
           
+          if (isModified) {
+            const adjustedDate = movePastBlockedPickupDay(eventDate, holidaysForPreview);
+
+            if (format(adjustedDate, 'yyyy-MM-dd') !== format(eventDate, 'yyyy-MM-dd')) {
+              reason += reason ? ' (weiter verschoben wegen Feiertag/Sonntag)' : 'Verschoben wegen Feiertag/Sonntag';
+              eventDate = adjustedDate;
+            }
+          }
+
           // Füge Zeitinformationen hinzu
           let timeInfo = 'Ganztägig';
           if (timeType === 'specific') {
@@ -400,6 +424,8 @@ export default function Home() {
     setIcsData(null);
 
     try {
+      let activeHolidays = holidays;
+
       if (useCustomIcs) {
         if (!customIcsUrl && !customIcsFile) {
           throw new Error('Bitte geben Sie eine ICS-URL ein oder laden Sie eine ICS-Datei hoch.');
@@ -408,20 +434,20 @@ export default function Home() {
         // Verarbeite eigene ICS-Datei oder URL
         if (customIcsFile) {
           // Datei parsen
-          await parseCustomIcs(customIcsFile);
+          activeHolidays = await parseCustomIcs(customIcsFile);
         } else if (customIcsUrl) {
           // URL verarbeiten mit aktuellem Jahr
-          await fetchCustomIcsFromUrl(customIcsUrl);
+          activeHolidays = await fetchCustomIcsFromUrl(customIcsUrl);
         }
 
-        if (holidays.length === 0) {
+        if (activeHolidays.length === 0) {
           throw new Error('Keine Feiertage in der ICS-Datei gefunden. Möglicherweise enthält die Datei keine Einträge für das ausgewählte Jahr ' + selectedYear + '.');
         }
       }
 
       // Zeige Vorschau, wenn diese noch nicht angezeigt wird
       if (!showPreview) {
-        const success = generatePreview();
+        const success = generatePreview(activeHolidays);
         if (success) {
           setShowPreview(true);
           setLoading(false);
@@ -435,9 +461,10 @@ export default function Home() {
       const response = await axios.post('/api/generate-ics', {
         pickupDay,
         eventName,
-        holidays,
+        holidays: activeHolidays,
         startDate: selectedYear === currentYear ? adjustedStartDate : startDate,
         endDate,
+        selectedYear,
         reminder: reminder ? parseInt(reminder) : 0,
         timeType,
         specificTime,
@@ -1338,4 +1365,4 @@ export default function Home() {
       </div>
     </div>
   );
-} 
+}
