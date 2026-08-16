@@ -18,12 +18,19 @@ export default function PickupStep({
   policyMeta,
 }) {
   return (
-    <div className="space-y-6">
-      <h3 className="text-xl font-bold text-primary">Schritt 1 – Abholung</h3>
+    <div className="space-y-7">
+      <div>
+        <h3 className="font-display text-2xl font-bold tracking-tight text-ink">
+          Abholung festlegen
+        </h3>
+        <p className="text-muted text-sm mt-1">
+          Wenige Angaben reichen für den Standardfall Wien / MA48.
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label htmlFor="holidayPolicy" className="block mb-2 font-medium">
+          <label htmlFor="holidayPolicy" className="block mb-2 text-sm font-semibold text-ink">
             Profil
           </label>
           <select
@@ -39,7 +46,7 @@ export default function PickupStep({
         </div>
 
         <div>
-          <label htmlFor="selectedYear" className="block mb-2 font-medium">
+          <label htmlFor="selectedYear" className="block mb-2 text-sm font-semibold text-ink">
             Jahr
           </label>
           <select
@@ -57,7 +64,7 @@ export default function PickupStep({
         </div>
 
         <div>
-          <label htmlFor="pickupDay" className="block mb-2 font-medium">
+          <label htmlFor="pickupDay" className="block mb-2 text-sm font-semibold text-ink">
             Regulärer Abholtag
           </label>
           <select
@@ -75,7 +82,7 @@ export default function PickupStep({
         </div>
 
         <div>
-          <label htmlFor="eventName" className="block mb-2 font-medium">
+          <label htmlFor="eventName" className="block mb-2 text-sm font-semibold text-ink">
             Terminname
           </label>
           <input
@@ -88,8 +95,8 @@ export default function PickupStep({
         </div>
 
         <div className="md:col-span-2">
-          <label htmlFor="wasteType" className="block mb-2 font-medium">
-            Abfalltyp (optional)
+          <label htmlFor="wasteType" className="block mb-2 text-sm font-semibold text-ink">
+            Abfalltyp <span className="font-normal text-muted">(optional)</span>
           </label>
           <input
             id="wasteType"

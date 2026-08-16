@@ -9,21 +9,21 @@ export default function RuleStatus({ policyMeta, holidayPolicy }) {
 
   return (
     <div
-      className={`rounded-xl px-4 py-3 text-sm ${
+      className={`rounded-2xl px-4 py-3.5 text-sm border ${
         meta.verified
-          ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
-          : 'bg-amber-50 text-amber-950 border border-amber-200'
+          ? 'bg-emerald-50/90 text-emerald-950 border-emerald-200/80'
+          : 'bg-amber-50/90 text-amber-950 border-amber-200/80'
       }`}
       role="status"
     >
       {meta.verified ? (
         <>
-          <p className="font-medium">
+          <p className="font-semibold">
             MA48-Regeln {meta.year}: geprüft
-            {meta.verifiedAt ? ` (${meta.verifiedAt})` : ''}
+            {meta.verifiedAt ? ` · ${meta.verifiedAt}` : ''}
           </p>
           {meta.notes?.map((note) => (
-            <p key={note} className="mt-1">
+            <p key={note} className="mt-1 text-emerald-900/80">
               {note}
             </p>
           ))}

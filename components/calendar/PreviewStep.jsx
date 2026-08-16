@@ -35,51 +35,56 @@ export default function PreviewStep({
   const activeCount = schedule.filter((e) => !e.isSkipped).length;
   const title = wasteType ? `${eventName} (${wasteType})` : eventName;
 
-  return (
-    <div className="space-y-6">
-      <h3 className="text-xl font-bold text-primary">Schritt 3 – Vorschau</h3>
+  const stats = [
+    { label: 'Termin', value: title },
+    { label: 'Abholtag', value: DAY_LABELS[pickupDay] || pickupDay },
+    { label: 'Jahr', value: String(selectedYear) },
+    { label: 'Termine', value: String(activeCount) },
+    {
+      label: 'Regeln',
+      value:
+        holidayPolicy === 'ma48-vienna'
+          ? policyMeta?.ma48Meta?.verified
+            ? `MA48 geprüft`
+            : `MA48 Standard`
+          : holidayPolicy,
+    },
+  ];
 
-      <div className="bg-background rounded-xl p-4 grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
-        <div>
-          <p className="text-lightText">Termin</p>
-          <p className="font-semibold">{title}</p>
-        </div>
-        <div>
-          <p className="text-lightText">Abholtag</p>
-          <p className="font-semibold">{DAY_LABELS[pickupDay] || pickupDay}</p>
-        </div>
-        <div>
-          <p className="text-lightText">Jahr</p>
-          <p className="font-semibold">{selectedYear}</p>
-        </div>
-        <div>
-          <p className="text-lightText">Termine</p>
-          <p className="font-semibold">{activeCount}</p>
-        </div>
-        <div>
-          <p className="text-lightText">Regeln</p>
-          <p className="font-semibold">
-            {holidayPolicy === 'ma48-vienna'
-              ? policyMeta?.ma48Meta?.verified
-                ? `MA48 ${selectedYear}: geprüft`
-                : `MA48 ${selectedYear}: Standard`
-              : holidayPolicy}
-          </p>
-        </div>
+  return (
+    <div className="space-y-7">
+      <div>
+        <h3 className="font-display text-2xl font-bold tracking-tight text-ink">Vorschau</h3>
+        <p className="text-muted text-sm mt-1">
+          Prüfen Sie die Termine, dann ICS herunterladen.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {stats.map((item) => (
+          <div key={item.label} className="panel !p-3">
+            <p className="text-[11px] uppercase tracking-wide text-muted font-semibold">
+              {item.label}
+            </p>
+            <p className="font-display font-semibold text-ink mt-1 truncate" title={item.value}>
+              {item.value}
+            </p>
+          </div>
+        ))}
       </div>
 
       <RuleStatus policyMeta={policyMeta} holidayPolicy={holidayPolicy} />
 
       {(holidaySource || holidayDegraded) && (
-        <p className="text-sm text-lightText">
+        <p className="text-sm text-muted">
           Feiertagsquelle: {holidaySource || 'unbekannt'}
-          {holidayDegraded ? ' (Degraded Mode / lokaler Fallback)' : ''}
+          {holidayDegraded ? ' · Degraded Mode / lokaler Fallback' : ''}
         </p>
       )}
 
       <SchedulePreview schedule={schedule} formatShort={formatShort} />
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3 items-center">
         <button
           type="button"
           className="btn btn-primary"
@@ -89,7 +94,7 @@ export default function PreviewStep({
           ICS-Datei herunterladen
         </button>
         {icsReady && (
-          <p className="text-sm text-emerald-800 self-center" role="status">
+          <p className="text-sm text-emerald-800" role="status">
             Download gestartet.
           </p>
         )}

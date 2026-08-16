@@ -23,7 +23,7 @@ function MonthDaySelect({ idPrefix, label, day, month, onDay, onMonth }) {
 
   return (
     <div>
-      <span className="block mb-2 font-medium" id={`${idPrefix}-label`}>
+      <span className="block mb-2 text-sm font-semibold text-ink" id={`${idPrefix}-label`}>
         {label}
       </span>
       <div className="grid grid-cols-2 gap-2" role="group" aria-labelledby={`${idPrefix}-label`}>
@@ -82,22 +82,22 @@ export default function BioWasteOptions({
   setWinterEndDay,
 }) {
   return (
-    <div className="p-4 bg-background rounded-xl space-y-4">
-      <label className="flex items-center gap-3 text-lg font-medium">
+    <div className="panel space-y-4">
+      <label className="flex items-center gap-3 font-semibold text-ink">
         <input
           type="checkbox"
           checked={isBioWaste}
           onChange={(e) => setIsBioWaste(e.target.checked)}
-          className="h-5 w-5"
+          className="h-5 w-5 rounded border-line"
         />
         Biotonne (14-tägig im Winter)
       </label>
 
       {isBioWaste && (
-        <div className="space-y-4 ml-1 md:ml-8">
+        <div className="space-y-4 animate-rise">
           <div>
-            <label htmlFor="bioReferenceDate" className="block mb-2 font-medium">
-              Bekannter Winter-Abholtermin (Referenz)
+            <label htmlFor="bioReferenceDate" className="block mb-2 text-sm font-semibold text-ink">
+              Bekannter Winter-Abholtermin
             </label>
             <input
               id="bioReferenceDate"
@@ -107,9 +107,8 @@ export default function BioWasteOptions({
               onChange={(e) => setBioReferenceDate(e.target.value)}
               required={isBioWaste}
             />
-            <p className="text-sm text-lightText mt-1">
-              Wählen Sie einen echten bekannten Termin. Ab dann gilt: Referenz, +14, +28, +42 …
-              Tage innerhalb des Winterzeitraums.
+            <p className="text-sm text-muted mt-1.5">
+              Referenz, dann +14 / +28 / +42 … innerhalb des Winterzeitraums.
             </p>
           </div>
 

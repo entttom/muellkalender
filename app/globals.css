@@ -2,66 +2,114 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --primary: #e85d04;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --surface: #ffffff;
+  --line: #e2e8f0;
+  --bg-a: #f8fafc;
+  --bg-b: #eef2ff;
+  --bg-c: #fff7ed;
+}
+
 body {
-  @apply bg-background text-text font-sans;
+  @apply bg-background text-ink font-sans antialiased;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(232, 93, 4, 0.14), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 0%, rgba(14, 165, 233, 0.1), transparent 50%),
+    linear-gradient(180deg, var(--bg-a) 0%, #f1f5f9 45%, #eef2f7 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 .container {
-  @apply mx-auto px-4 max-w-5xl;
+  @apply mx-auto px-4 sm:px-6 max-w-5xl;
 }
 
 .btn {
-  @apply px-6 py-3 font-medium rounded-lg transition-all transform duration-200 shadow-sm;
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold tracking-tight rounded-xl transition-all duration-200;
+}
+
+.btn:disabled {
+  @apply opacity-45 cursor-not-allowed;
 }
 
 .btn-primary {
-  @apply bg-primary text-white hover:bg-accent hover:shadow-hover;
+  @apply bg-primary text-white hover:bg-accent active:scale-[0.98];
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 8px 20px rgba(232, 93, 4, 0.25);
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 10px 24px rgba(220, 47, 2, 0.28);
 }
 
 .btn-secondary {
-  @apply bg-secondary text-white hover:bg-primary hover:shadow-hover;
+  @apply bg-white text-ink border border-line hover:border-slate-300 hover:bg-slate-50 active:scale-[0.98];
 }
 
 .input-field {
-  @apply rounded-lg border-gray-300 focus:ring-primary focus:border-primary shadow-sm transition-all;
+  @apply rounded-xl border-line bg-white text-ink shadow-none transition-all;
+  @apply focus:ring-2 focus:ring-primary/25 focus:border-primary;
 }
 
 .card {
-  @apply bg-surface p-8 rounded-2xl shadow-custom transition-all hover:shadow-hover mb-4;
+  @apply bg-surface/90 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-line/80 mb-4;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03), 0 16px 40px rgba(15, 23, 42, 0.05);
 }
 
-/* Modern radio/checkbox styles */
-input[type="radio"], 
-input[type="checkbox"] {
+.panel {
+  @apply rounded-2xl border border-line/80 bg-slate-50/70 p-4 sm:p-5;
+}
+
+input[type='radio'],
+input[type='checkbox'] {
   @apply text-primary focus:ring-primary focus:ring-offset-background;
 }
 
-/* Table styles */
 table {
   @apply border-collapse w-full;
 }
 
 th {
-  @apply font-medium text-primary;
+  @apply font-semibold text-muted text-xs uppercase tracking-wide;
 }
 
 td {
-  @apply border-b border-gray-100;
-}
-
-/* Animation */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  @apply border-b border-line/70;
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: rise 0.45s ease-out both;
 }
 
-/* Custom select styling */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 select {
-  @apply appearance-none bg-right bg-no-repeat pr-8;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23F27F01'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  @apply appearance-none bg-right bg-no-repeat pr-9;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-size: 1rem;
-} 
+}
+
+*:focus-visible {
+  outline: 2px solid #e85d04;
+  outline-offset: 2px;
+}
+
+.step-rail {
+  @apply relative flex gap-2 sm:gap-3;
+}
+
+.step-rail::before {
+  content: '';
+  @apply absolute left-4 right-4 top-1/2 h-px bg-line -z-0 hidden sm:block;
+}

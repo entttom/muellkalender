@@ -23,15 +23,20 @@ export default function OptionsStep(props) {
   } = props;
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-xl font-bold text-primary">Schritt 2 – Optionen</h3>
+    <div className="space-y-7">
+      <div>
+        <h3 className="font-display text-2xl font-bold tracking-tight text-ink">Optionen</h3>
+        <p className="text-muted text-sm mt-1">
+          Erinnerung, Zeitraum und optionale Biotonne.
+        </p>
+      </div>
 
       <BioWasteOptions {...props} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label htmlFor="reminder" className="block mb-2 font-medium">
-            Erinnerung (Stunden vorher)
+          <label htmlFor="reminder" className="block mb-2 text-sm font-semibold text-ink">
+            Erinnerung
           </label>
           <select
             id="reminder"
@@ -40,19 +45,19 @@ export default function OptionsStep(props) {
             onChange={(e) => setReminder(e.target.value)}
           >
             <option value="">Keine</option>
-            <option value="1">1 Stunde</option>
-            <option value="3">3 Stunden</option>
-            <option value="12">12 Stunden</option>
-            <option value="24">24 Stunden</option>
-            <option value="48">48 Stunden</option>
+            <option value="1">1 Stunde vorher</option>
+            <option value="3">3 Stunden vorher</option>
+            <option value="12">12 Stunden vorher</option>
+            <option value="24">24 Stunden vorher</option>
+            <option value="48">48 Stunden vorher</option>
           </select>
         </div>
 
-        <div>
+        <div className="panel">
           <fieldset>
-            <legend className="block mb-2 font-medium">Zeitraum der Termine</legend>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2">
+            <legend className="text-sm font-semibold text-ink mb-3">Zeitraum der Termine</legend>
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2.5 text-sm">
                 <input
                   type="radio"
                   name="dateRangeMode"
@@ -61,7 +66,7 @@ export default function OptionsStep(props) {
                 />
                 Nur zukünftige Termine
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2.5 text-sm">
                 <input
                   type="radio"
                   name="dateRangeMode"
@@ -75,15 +80,15 @@ export default function OptionsStep(props) {
         </div>
       </div>
 
-      <fieldset className="space-y-3">
-        <legend className="font-medium mb-2">Terminzeit</legend>
+      <fieldset className="panel space-y-3">
+        <legend className="text-sm font-semibold text-ink px-1">Terminzeit</legend>
         <div className="flex flex-wrap gap-4">
           {[
             { id: 'allday', label: 'Ganztägig' },
             { id: 'specific', label: 'Uhrzeit' },
             { id: 'range', label: 'Zeitraum' },
           ].map((opt) => (
-            <label key={opt.id} className="flex items-center gap-2">
+            <label key={opt.id} className="flex items-center gap-2 text-sm">
               <input
                 type="radio"
                 name="timeType"
@@ -96,7 +101,7 @@ export default function OptionsStep(props) {
         </div>
         {timeType === 'specific' && (
           <div>
-            <label htmlFor="specificTime" className="block mb-1 text-sm">
+            <label htmlFor="specificTime" className="block mb-1 text-sm text-muted">
               Uhrzeit
             </label>
             <input
@@ -111,7 +116,7 @@ export default function OptionsStep(props) {
         {timeType === 'range' && (
           <div className="flex flex-wrap gap-4">
             <div>
-              <label htmlFor="startTime" className="block mb-1 text-sm">
+              <label htmlFor="startTime" className="block mb-1 text-sm text-muted">
                 Von
               </label>
               <input
@@ -123,7 +128,7 @@ export default function OptionsStep(props) {
               />
             </div>
             <div>
-              <label htmlFor="endTime" className="block mb-1 text-sm">
+              <label htmlFor="endTime" className="block mb-1 text-sm text-muted">
                 Bis
               </label>
               <input
@@ -141,23 +146,22 @@ export default function OptionsStep(props) {
       <div>
         <button
           type="button"
-          className="text-primary font-medium underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="text-sm font-semibold text-primary hover:text-accent transition-colors underline-offset-4 hover:underline"
           onClick={() => setShowAdvanced(!showAdvanced)}
           aria-expanded={showAdvanced}
         >
           {showAdvanced ? 'Erweiterte Einstellungen ausblenden' : 'Erweiterte Einstellungen'}
         </button>
         {showAdvanced && (
-          <div className="mt-4 p-4 bg-background rounded-xl space-y-4">
+          <div className="mt-4 panel space-y-4 animate-rise">
             <HolidaySourceSelector {...props} />
           </div>
         )}
       </div>
 
       {isBioWaste && (
-        <p className="text-sm text-lightText">
-          Im Winter entfallen reguläre Wochen außerhalb des 14-Tage-Rhythmus – sie erscheinen
-          in der Vorschau als „Entfällt“.
+        <p className="text-sm text-muted">
+          Im Winter erscheinen übersprungene Wochen in der Vorschau als „Entfällt“.
         </p>
       )}
     </div>

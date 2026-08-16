@@ -39,11 +39,11 @@ export default function HolidaySourceSelector({
 
   return (
     <div className="space-y-6">
-      <h4 className="font-semibold text-primary">Feiertagsquelle & Sondertage</h4>
+      <h4 className="font-display font-semibold text-ink">Feiertagsquelle & Sondertage</h4>
 
       {holidayPolicy !== 'ma48-vienna' && (
         <div>
-          <label htmlFor="country" className="block mb-2 font-medium">
+          <label htmlFor="country" className="block mb-2 text-sm font-semibold text-ink">
             Land
           </label>
           <select
@@ -60,8 +60,8 @@ export default function HolidaySourceSelector({
       )}
 
       <fieldset className="space-y-3">
-        <legend className="font-medium">Quelle</legend>
-        <label className="flex items-center gap-2">
+        <legend className="text-sm font-semibold text-ink">Quelle</legend>
+        <label className="flex items-center gap-2.5 text-sm">
           <input
             type="radio"
             name="holidaySourceMode"
@@ -70,7 +70,7 @@ export default function HolidaySourceSelector({
           />
           Öffentliche Feiertags-API / lokaler Fallback
         </label>
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2.5 text-sm">
           <input
             type="radio"
             name="holidaySourceMode"
@@ -82,9 +82,9 @@ export default function HolidaySourceSelector({
       </fieldset>
 
       {useCustomIcs && (
-        <div className="space-y-4 pl-1">
+        <div className="space-y-4 animate-rise">
           <div>
-            <label htmlFor="customIcsUrl" className="block mb-2 font-medium">
+            <label htmlFor="customIcsUrl" className="block mb-2 text-sm font-semibold text-ink">
               ICS-URL
             </label>
             <div className="flex flex-wrap gap-2">
@@ -100,13 +100,12 @@ export default function HolidaySourceSelector({
                 Laden
               </button>
             </div>
-            <p className="text-xs text-lightText mt-1">
-              Wird über einen Server-Proxy geladen (HTTPS, SSRF-geschützt). Bei CORS-Problemen
-              im Browser nutzen Sie diesen Weg oder einen Datei-Upload.
+            <p className="text-xs text-muted mt-1.5">
+              Server-Proxy (HTTPS, SSRF-geschützt). Bei Problemen Datei hochladen.
             </p>
           </div>
           <div>
-            <label htmlFor="customIcsFile" className="block mb-2 font-medium">
+            <label htmlFor="customIcsFile" className="block mb-2 text-sm font-semibold text-ink">
               ICS-Datei
             </label>
             <input
@@ -116,25 +115,28 @@ export default function HolidaySourceSelector({
               onChange={(e) => setCustomIcsFile(e.target.files?.[0] || null)}
             />
             {customIcsFile && (
-              <p className="text-sm text-primary mt-1">{customIcsFile.name}</p>
+              <p className="text-sm text-primary mt-1 font-medium">{customIcsFile.name}</p>
             )}
           </div>
         </div>
       )}
 
       <div aria-live="polite">
-        {loading && <p className="text-sm text-lightText">Feiertage werden geladen…</p>}
+        {loading && <p className="text-sm text-muted">Feiertage werden geladen…</p>}
         {!loading && holidays.length > 0 && (
           <div>
-            <p className="text-sm mb-2">
-              {holidays.length} Feiertage geladen
-              {holidaySource ? ` · Quelle: ${holidaySource}` : ''}
-              {holidayDegraded ? ' · eingeschränkter Modus' : ''}
+            <p className="text-sm mb-2 text-muted">
+              {holidays.length} Feiertage
+              {holidaySource ? ` · ${holidaySource}` : ''}
+              {holidayDegraded ? ' · eingeschränkt' : ''}
             </p>
-            <div className="max-h-40 overflow-y-auto text-sm border border-gray-100 rounded-lg p-3 bg-surface">
+            <div className="max-h-40 overflow-y-auto text-sm rounded-xl border border-line bg-white p-3">
               {holidays.map((h) => (
-                <div key={h.date + h.name} className="py-1 border-b border-gray-50 last:border-0">
-                  <span className="font-medium text-primary">
+                <div
+                  key={h.date + h.name}
+                  className="py-1.5 border-b border-line/60 last:border-0"
+                >
+                  <span className="font-semibold text-primary">
                     {format(parseISO(h.date), 'dd.MM.yyyy')}
                   </span>
                   {h.weekday ? ` (${h.weekday})` : ''} – {h.name}
@@ -147,21 +149,21 @@ export default function HolidaySourceSelector({
 
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <h5 className="font-medium">Manuelle Sondertage</h5>
-          <button type="button" className="btn btn-secondary text-sm py-2 px-3" onClick={addOverride}>
+          <h5 className="text-sm font-semibold text-ink">Manuelle Sondertage</h5>
+          <button type="button" className="btn btn-secondary !py-2 !px-3 text-xs" onClick={addOverride}>
             Hinzufügen
           </button>
         </div>
         {manualOverrides.length === 0 && (
-          <p className="text-sm text-lightText">Keine manuellen Overrides.</p>
+          <p className="text-sm text-muted">Keine manuellen Overrides.</p>
         )}
         {manualOverrides.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-1 md:grid-cols-4 gap-2 items-end border border-gray-100 rounded-lg p-3"
+            className="grid grid-cols-1 md:grid-cols-4 gap-2 items-end rounded-xl border border-line bg-white p-3"
           >
             <div>
-              <label className="text-sm" htmlFor={`override-date-${index}`}>
+              <label className="text-xs text-muted" htmlFor={`override-date-${index}`}>
                 Datum
               </label>
               <input
@@ -173,7 +175,7 @@ export default function HolidaySourceSelector({
               />
             </div>
             <div>
-              <label className="text-sm" htmlFor={`override-service-${index}`}>
+              <label className="text-xs text-muted" htmlFor={`override-service-${index}`}>
                 Service
               </label>
               <select
@@ -187,7 +189,7 @@ export default function HolidaySourceSelector({
               </select>
             </div>
             <div>
-              <label className="text-sm" htmlFor={`override-reason-${index}`}>
+              <label className="text-xs text-muted" htmlFor={`override-reason-${index}`}>
                 Grund
               </label>
               <input
@@ -199,7 +201,7 @@ export default function HolidaySourceSelector({
             </div>
             <button
               type="button"
-              className="btn btn-secondary text-sm py-2"
+              className="btn btn-secondary !py-2 text-xs"
               onClick={() => removeOverride(index)}
             >
               Entfernen

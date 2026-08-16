@@ -8,89 +8,83 @@ const STATUS_LABELS = {
 };
 
 const STATUS_STYLES = {
-  normal: 'bg-gray-100 text-gray-800',
-  shifted: 'bg-amber-100 text-amber-950',
-  skipped: 'bg-slate-100 text-slate-700',
-  special: 'bg-emerald-100 text-emerald-950',
+  normal: 'bg-slate-100 text-slate-800 border-slate-200',
+  shifted: 'bg-amber-50 text-amber-950 border-amber-200',
+  skipped: 'bg-slate-50 text-slate-600 border-slate-200',
+  special: 'bg-emerald-50 text-emerald-950 border-emerald-200',
 };
 
 export default function SchedulePreview({ schedule, formatShort }) {
   if (!schedule?.length) {
-    return <p className="text-lightText">Keine Termine in der Vorschau.</p>;
+    return <p className="text-muted">Keine Termine in der Vorschau.</p>;
   }
 
   return (
     <>
-      {/* Desktop Tabelle */}
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto rounded-2xl border border-line/80">
         <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left border-b border-gray-200">
-              <th className="py-2 pr-3">Status</th>
-              <th className="py-2 pr-3">Original</th>
-              <th className="py-2 pr-3">Effektiv</th>
-              <th className="py-2">Grund</th>
+          <thead className="bg-slate-50/90">
+            <tr className="text-left">
+              <th className="py-3 px-4">Status</th>
+              <th className="py-3 px-4">Original</th>
+              <th className="py-3 px-4">Effektiv</th>
+              <th className="py-3 px-4">Grund</th>
             </tr>
           </thead>
           <tbody>
             {schedule.map((entry) => (
-              <tr key={entry.originalDate} className="border-b border-gray-50">
-                <td className="py-3 pr-3">
+              <tr key={entry.originalDate} className="hover:bg-slate-50/60 transition-colors">
+                <td className="py-3 px-4">
                   <span
-                    className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${STATUS_STYLES[entry.status]}`}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${STATUS_STYLES[entry.status]}`}
                   >
                     <StatusMark status={entry.status} />
                     {STATUS_LABELS[entry.status] || entry.status}
                   </span>
                 </td>
-                <td className="py-3 pr-3">{formatShort(entry.originalDate)}</td>
-                <td className="py-3 pr-3">
+                <td className="py-3 px-4 text-ink">{formatShort(entry.originalDate)}</td>
+                <td className="py-3 px-4 text-ink">
                   {entry.isSkipped ? '—' : formatShort(entry.effectiveDate)}
                   {entry.isShifted && (
-                    <span className="block text-xs text-lightText">
-                      → verschoben
-                    </span>
+                    <span className="block text-xs text-muted mt-0.5">verschoben</span>
                   )}
                 </td>
-                <td className="py-3 text-lightText">{entry.reason || '—'}</td>
+                <td className="py-3 px-4 text-muted">{entry.reason || '—'}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Mobile Cards */}
       <div className="md:hidden space-y-3">
         {schedule.map((entry) => (
           <article
             key={entry.originalDate}
-            className="border border-gray-100 rounded-xl p-4 bg-surface shadow-sm"
+            className="rounded-2xl border border-line/80 bg-white p-4"
           >
-            <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="mb-2">
               <span
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${STATUS_STYLES[entry.status]}`}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${STATUS_STYLES[entry.status]}`}
               >
                 <StatusMark status={entry.status} />
                 {STATUS_LABELS[entry.status] || entry.status}
               </span>
             </div>
             {entry.isShifted ? (
-              <p className="font-medium">
+              <p className="font-display font-semibold text-ink">
                 {formatShort(entry.originalDate)}
-                <span className="block text-primary">
+                <span className="block text-primary mt-1">
                   → {formatShort(entry.effectiveDate)}
                 </span>
               </p>
             ) : (
-              <p className="font-medium">
+              <p className="font-display font-semibold text-ink">
                 {entry.isSkipped
                   ? formatShort(entry.originalDate)
                   : formatShort(entry.effectiveDate)}
               </p>
             )}
-            {entry.reason && (
-              <p className="text-sm text-lightText mt-2">{entry.reason}</p>
-            )}
+            {entry.reason && <p className="text-sm text-muted mt-2">{entry.reason}</p>}
           </article>
         ))}
       </div>

@@ -367,39 +367,65 @@ export default function CalendarWizard() {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-3">
-        <h2 className="text-3xl font-bold text-primary">Müllkalender</h2>
-        <p className="text-lightText text-lg max-w-2xl">
-          Wien → Wochentag wählen → Kalender erhalten. Feiertage und MA48-Sonderregeln
-          werden automatisch berücksichtigt.
+    <div className="space-y-8 sm:space-y-10">
+      <section className="animate-rise space-y-4 max-w-3xl">
+        <p className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-ink leading-[1.05]">
+          Müllkalender
         </p>
-      </div>
+        <p className="text-muted text-base sm:text-lg leading-relaxed max-w-xl animate-rise-delay">
+          Wien → Wochentag wählen → Kalender erhalten. Feiertage und MA48-Regeln
+          werden automatisch mitgedacht.
+        </p>
+      </section>
 
-      <nav aria-label="Fortschritt" className="flex gap-2 flex-wrap">
-        {STEPS.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => {
-              if (s.id < step) setStep(s.id);
-            }}
-            className={`px-4 py-2 rounded-lg text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-              step === s.id
-                ? 'bg-primary text-white'
-                : step > s.id
-                  ? 'bg-secondary/30 text-primary'
-                  : 'bg-background text-lightText'
-            }`}
-            aria-current={step === s.id ? 'step' : undefined}
-          >
-            {s.id}. {s.title}
-          </button>
-        ))}
+      <nav aria-label="Fortschritt" className="step-rail relative z-10">
+        {STEPS.map((s) => {
+          const active = step === s.id;
+          const done = step > s.id;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => {
+                if (s.id < step) setStep(s.id);
+              }}
+              className={`relative z-10 flex-1 min-w-[6.5rem] rounded-2xl border px-3 py-3 text-left transition-all duration-200 ${
+                active
+                  ? 'border-primary/30 bg-primary text-white shadow-soft'
+                  : done
+                    ? 'border-line bg-white text-ink hover:border-primary/40'
+                    : 'border-transparent bg-white/60 text-muted'
+              }`}
+              aria-current={active ? 'step' : undefined}
+            >
+              <span
+                className={`block text-[11px] font-semibold uppercase tracking-wider ${
+                  active ? 'text-white/80' : 'text-muted'
+                }`}
+              >
+                Schritt {s.id}
+              </span>
+              <span className="block font-display text-sm sm:text-base font-semibold mt-0.5">
+                {s.title}
+              </span>
+            </button>
+          );
+        })}
       </nav>
 
       <div
-        className="card animate-fadeIn"
+        className="h-1 rounded-full bg-line overflow-hidden"
+        aria-hidden="true"
+      >
+        <div
+          className="h-full origin-left rounded-full bg-primary transition-all duration-500 ease-out"
+          style={{ width: `${(step / STEPS.length) * 100}%` }}
+        />
+      </div>
+
+      <div
+        key={step}
+        className="card animate-rise"
         role="region"
         aria-label={`Schritt ${step}: ${STEPS[step - 1].title}`}
       >
@@ -415,18 +441,17 @@ export default function CalendarWizard() {
           />
         )}
 
-        <div
-          className="mt-6 min-h-[1.5rem]"
-          aria-live="polite"
-          aria-atomic="true"
-        >
+        <div className="mt-6 min-h-[1.5rem]" aria-live="polite" aria-atomic="true">
           {error && (
-            <p className="text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3" role="alert">
+            <p
+              className="text-red-800 bg-red-50 border border-red-200/80 rounded-xl px-4 py-3 text-sm"
+              role="alert"
+            >
               {error}
             </p>
           )}
           {loading && !error && (
-            <p className="text-lightText flex items-center gap-2">
+            <p className="text-muted flex items-center gap-2 text-sm">
               <span
                 className="inline-block h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin"
                 aria-hidden="true"
@@ -436,27 +461,23 @@ export default function CalendarWizard() {
           )}
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-3 justify-between">
+        <div className="mt-8 pt-6 border-t border-line/80 flex flex-wrap gap-3 justify-between">
           <button
             type="button"
-            className="btn btn-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="btn btn-secondary"
             onClick={goBack}
             disabled={step === 1}
           >
             Zurück
           </button>
           {step < 3 ? (
-            <button
-              type="button"
-              className="btn btn-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-              onClick={goNext}
-            >
+            <button type="button" className="btn btn-primary" onClick={goNext}>
               Weiter
             </button>
           ) : (
             <button
               type="button"
-              className="btn btn-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              className="btn btn-primary"
               onClick={downloadIcs}
               disabled={loading}
             >
